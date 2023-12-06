@@ -8,12 +8,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\aoc.common\aoc.common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="input.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="sample.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="aoc.common.Prints">
+      <Static>True</Static>
+    </Using>
+    <Using Include="aoc.common.Segments">
+      <Static>True</Static>
+    </Using>
   </ItemGroup>
 
 </Project>
