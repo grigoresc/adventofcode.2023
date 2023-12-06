@@ -1,10 +1,12 @@
-﻿//var input = File.ReadAllText("sample.txt");
+﻿using aoc.common;
+
+//var input = File.ReadAllText("sample.txt");
 var input = File.ReadAllText("input.txt");
 
 var inputs = input.Split("\r\n\r\n");
 
-var seeds = inputs[0].Split(" ")[1..].Select(x => long.Parse(x)).ToArray();
-var maps = inputs[1..].Select(r => r.Split("\r\n")[1..].Select(x => x.Split(" ").Select(y => long.Parse(y)).ToArray()).ToArray()).ToArray();
+var seeds = Reads.readNumbers(inputs[0]);
+var maps = inputs[1..].Select(r => r.Split("\r\n")[1..].Select(x => Reads.readNumbers(x)).ToArray()).ToArray();
 
 var sln1 = seeds.Select(x => findPos(x)).Min();
 Console.WriteLine($"sln1={sln1}");//173706076
@@ -12,7 +14,6 @@ Console.WriteLine($"sln1={sln1}");//173706076
 const int DEST = 0;
 const int SRC = 1;
 const int LEN = 2;
-
 long findPos(long seed)
 {
     long dest = seed;

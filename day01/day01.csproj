@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\aoc.common.2022\aoc.common.2022.fsproj" />
     <ProjectReference Include="..\aoc.common\aoc.common.csproj" />
   </ItemGroup>
 
