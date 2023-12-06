@@ -33,8 +33,8 @@ foreach (var seed in seeds)
     show(seed);
 }
 
-var sln = seeds.Select(x => findPos(x)).Min();
-Console.WriteLine($"min={sln}");
+var sln1 = seeds.Select(x => findPos(x)).Min();
+Console.WriteLine($"sln1={sln1}");
 
 
 
@@ -68,3 +68,63 @@ long findPos(long seed)
 
     return currentPos;
 }
+
+Tuple<long, long>? Intersect(Tuple<long, long> segment1, Tuple<long, long> segment2)
+{
+    var (a, b) = segment1;
+    var (c, d) = segment2;
+    if (a > b)
+        (a, b) = (b, a);
+    if (c > d)
+        (c, d) = (d, c);
+    if (b < c || d < a)
+        return null;
+    return Tuple.Create(Math.Max(a, c), Math.Min(b, d));
+
+}
+var minLocation2 = 1000000000000000L;
+void findPos2(long src, long srcrange, int idxMap)
+{
+    if (idxMap == maps.Length)
+    {
+        if (src < minLocation2)
+            minLocation2 = src;
+        return;
+    }
+
+    var map = maps[idxMap];
+
+    var has = false;
+    foreach (var range in map)
+    {
+
+        var intersect = Intersect(Tuple.Create(src, src + srcrange), Tuple.Create(range[SRC], range[SRC] + range[LEN]));
+
+        if (intersect != null)
+        {
+            var dest = range[DEST];
+            if (range[SRC] < intersect.Item1)
+            {
+                dest = range[DEST] + intersect.Item1 - range[SRC];
+            }
+            else if (range[SRC] > intersect.Item1)
+            {
+                dest = range[DEST] - range[SRC] + intersect.Item1;
+            }
+
+            findPos2(dest, intersect.Item2 - intersect.Item1, idxMap + 1);
+            has = true;
+        }
+    }
+    if (!has)
+        findPos2(src, srcrange, idxMap + 1);
+}
+
+for (int i = 0; i < seeds.Length / 2; i++)
+{
+    findPos2(seeds[i * 2], seeds[i * 2 + 1], 0);
+}
+
+var sln2 = minLocation2;
+Console.WriteLine($"sln2={sln2}");//11611182
+
