@@ -1,28 +1,27 @@
 ﻿namespace day05;
 
-
 public class Solve
 {
-
     [Theory]
-    [InlineData(InputType.File, "sample.txt", 35L)]
-    [InlineData(InputType.File, "input.txt", 173706076L)]
-    void Part1<T> (InputType type, string input,T expected)
+    [InlineData("sample.txt", 35L)]
+    [InlineData("input.txt", 173706076L)]
+    void Part1(string input, long expected)
     {
-        var (seeds, maps) = Parse(type, input);
-
+        var (seeds, maps) = input.ParseAsChunkOfLines().Parse();
+        //seeds.Dump();
+        //maps.Dump();
         seeds
             .Select(x => findPos(x, maps)).Min()
             .Dump()
-            .AssertEqual(expected);
+            .AssertSolved(expected);
     }
 
     [Theory]
-    [InlineData(InputType.File, "sample.txt", 46L)]
-    [InlineData(InputType.File, "input.txt", 11611182L)]
-    void Part2<T>(InputType type, string input, T expected)
+    [InlineData("sample.txt", 46L)]
+    [InlineData("input.txt", 11611182L)]
+    void Part2(string input, long expected)
     {
-        var (seeds, maps) = Parse(type, input);
+        var (seeds, maps) = input.ParseAsChunkOfLines().Parse();
 
         var minLocation = 1000000000000000L;
 
@@ -32,18 +31,7 @@ public class Solve
         }
         minLocation
             .Dump()
-            .AssertEqual(expected);
-    }
-
-    (long[], long[][][]) Parse(InputType type, string input)
-    {
-        if(type == InputType.File)
-            input = File.ReadAllText(input);
-        var inputs = input.Split("\r\n\r\n");
-
-        var seeds = Reads.ReadNumbers(inputs[0]);
-        var maps = inputs[1..].Select(r => r.Split("\r\n")[1..].Select(x => Reads.ReadNumbers(x)).ToArray()).ToArray();
-        return (seeds, maps);
+            .AssertSolved(expected);
     }
 
     const int DEST = 0;
@@ -105,5 +93,18 @@ public class Solve
             findPos2(src, srcrange, idxMap + 1, maps, ref minLocation2);
     }
 
-}
+    public Solve(ITestOutputHelper output)
+    {
+        this.Setup(output);
+    }
 
+}
+static class Parser
+{
+    public static (long[], long[][][]) Parse(this string[] lines)
+    {
+        var seeds = Reads.ReadNumbers(lines[0]);
+        var maps = lines[1..].Select(r => r.Split("\r\n")[1..].Select(x => Reads.ReadNumbers(x)).ToArray()).ToArray();
+        return (seeds, maps);
+    }
+}

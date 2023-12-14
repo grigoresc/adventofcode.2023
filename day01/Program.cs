@@ -1,4 +1,34 @@
 ﻿
+using aoc.common;
+using Xunit;
+
+public class Solve
+{
+
+    [Theory]
+    [InlineData(@"1abc2
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet", 35L)]
+    [InlineData(@"two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen", 35L)]
+    [InlineData("input.txt", 173706076L)]
+    void Part1(string input, long expected)
+    {
+        var lines = input.ParseAsLines();
+
+        //seeds
+        //    .Select(x => findPos(x, maps)).Min()
+        //    .Dump()
+        //    .AssertEqual(expected);
+    }
+
+}
 internal class Program
 {
     private static void Main(string[] args)

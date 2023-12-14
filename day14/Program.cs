@@ -100,7 +100,7 @@ char[][] Rotate(char[][] map)
     return newmap;
 }
 
-void MoveNorth(char[][] map)
+char[][] MoveNorth(char[][] map)
 {
     for (int j = 0; j < len; j++)
     {
@@ -155,4 +155,6 @@ void MoveNorth(char[][] map)
             }
         }
     }
+
+    return map;
 }
