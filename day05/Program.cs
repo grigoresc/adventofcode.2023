@@ -1,103 +1,121 @@
 ﻿using aoc.common;
 using Xunit;
+namespace day05;
 
-//var input = File.ReadAllText("sample.txt");
-var input = File.ReadAllText("input.txt");
-
-var inputs = input.Split("\r\n\r\n");
-
-
-//q:3 4 5 6
-//read numbers
-//var seeds = Reads.readNumbers(inputs[0]);
-//
-var seeds = Reads.ReadNumbers(inputs[0]);
-var maps = inputs[1..].Select(r => r.Split("\r\n")[1..].Select(x => Reads.ReadNumbers(x)).ToArray()).ToArray();
-
-var sln1 = seeds.Select(x => findPos(x)).Min();
-Console.WriteLine($"sln1={sln1}");
-//Assert.Equal(173706076, sln1);
-
-[Fact]
-void Solve1()
+static class Outputs
 {
-    var sln1 = seeds.Select(x => findPos(x)).Min();
-    Console.WriteLine($"sln1={sln1}");
-    Assert.Equal(173706076, sln1);
+    public static object Dump<T>(this T o)
+    {
+        Console.WriteLine(o);
+        return o;
+    }
 
+    public static object AssertEqual<T>(this T o, T expected)
+    {
+        Assert.Equal(expected, o);
+        return o;
+    }
 }
 
-const int DEST = 0;
-const int SRC = 1;
-const int LEN = 2;
-long findPos(long seed)
+public class Program
 {
-    long dest = seed;
-    for (int m = 0; m < maps.Length; m++)
+
+    [Fact]
+    private void SolvePart1()
     {
-        var map = maps[m];
-        for (int i = 0; i < map.Length; i++)
+        var (seeds, maps) = Parse();
+
+        seeds
+            .Select(x => findPos(x, maps)).Min()
+            .Dump()
+            .AssertEqual(173706076L);
+
+    }
+
+    [Fact]
+    private void SolvePart2()
+    {
+        var (seeds, maps) = Parse();
+
+        var minLocation2 = 1000000000000000L;
+
+        for (int i = 0; i < seeds.Length / 2; i++)
         {
-            var range = map[i];
-            if (range[SRC] <= dest && dest < range[SRC] + range[LEN])
+            findPos2(seeds[i * 2], seeds[i * 2 + 1], 0, maps, ref minLocation2);
+        }
+        minLocation2
+            .Dump()
+            .AssertEqual(11611182L);
+    }
+
+    (long[], long[][][]) Parse()
+    {
+        string input = File.ReadAllText("input.txt");
+        var inputs = input.Split("\r\n\r\n");
+
+        var seeds = Reads.ReadNumbers(inputs[0]);
+        var maps = inputs[1..].Select(r => r.Split("\r\n")[1..].Select(x => Reads.ReadNumbers(x)).ToArray()).ToArray();
+        return (seeds, maps);
+    }
+
+    const int DEST = 0;
+    const int SRC = 1;
+    const int LEN = 2;
+    long findPos(long seed, long[][][]? maps)
+    {
+        long dest = seed;
+        for (int m = 0; m < maps.Length; m++)
+        {
+            var map = maps[m];
+            for (int i = 0; i < map.Length; i++)
             {
-                dest = range[DEST] + dest - range[SRC];
-                break;
+                var range = map[i];
+                if (range[SRC] <= dest && dest < range[SRC] + range[LEN])
+                {
+                    dest = range[DEST] + dest - range[SRC];
+                    break;
+                }
             }
         }
-    }
-    return dest;
-}
-
-var minLocation2 = 1000000000000000L;
-void findPos2(long src, long srcrange, int idxMap)
-{
-    if (idxMap == maps.Length)
-    {
-        if (src < minLocation2)
-            minLocation2 = src;
-        return;
+        return dest;
     }
 
-    var map = maps[idxMap];
-
-    var has = false;
-    foreach (var range in map)
+    void findPos2(long src, long srcrange, int idxMap, long[][][]? maps, ref long minLocation2)
     {
-
-        var intersect =  Segments.Intersect(Tuple.Create(src, src + srcrange), Tuple.Create(range[SRC], range[SRC] + range[LEN]));
-
-        if (intersect != null)
+        if (idxMap == maps.Length)
         {
-            var dest = range[DEST];
-            if (range[SRC] < intersect.Item1)
-            {
-                dest = range[DEST] + intersect.Item1 - range[SRC];
-            }
-            else if (range[SRC] > intersect.Item1)
-            {
-                dest = range[DEST] - range[SRC] + intersect.Item1;
-            }
-
-            findPos2(dest, intersect.Item2 - intersect.Item1, idxMap + 1);
-            has = true;
+            if (src < minLocation2)
+                minLocation2 = src;
+            return;
         }
+
+        var map = maps[idxMap];
+
+        var has = false;
+        foreach (var range in map)
+        {
+
+            var intersect = Segments.Intersect(Tuple.Create(src, src + srcrange), Tuple.Create(range[SRC], range[SRC] + range[LEN]));
+
+            if (intersect != null)
+            {
+                var dest = range[DEST];
+                if (range[SRC] < intersect.Item1)
+                {
+                    dest = range[DEST] + intersect.Item1 - range[SRC];
+                }
+                else if (range[SRC] > intersect.Item1)
+                {
+                    dest = range[DEST] - range[SRC] + intersect.Item1;
+                }
+
+                findPos2(dest, intersect.Item2 - intersect.Item1, idxMap + 1, maps, ref minLocation2);
+                has = true;
+            }
+        }
+        if (!has)
+            findPos2(src, srcrange, idxMap + 1, maps, ref minLocation2);
     }
-    if (!has)
-        findPos2(src, srcrange, idxMap + 1);
-}
-
-for (int i = 0; i < seeds.Length / 2; i++)
-{
-    findPos2(seeds[i * 2], seeds[i * 2 + 1], 0);
-}
-[Fact]
-void Solve2()
-{
 
 }
-var sln2 = minLocation2;
-Console.WriteLine($"sln2={sln2}");
-Assert.Equal(11611182, sln2);
 
-public partial class Program { }
