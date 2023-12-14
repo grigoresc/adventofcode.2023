@@ -1,56 +1,44 @@
-﻿using aoc.common;
-using Xunit;
-namespace day05;
+﻿namespace day05;
 
-static class Outputs
-{
-    public static object Dump<T>(this T o)
-    {
-        Console.WriteLine(o);
-        return o;
-    }
 
-    public static object AssertEqual<T>(this T o, T expected)
-    {
-        Assert.Equal(expected, o);
-        return o;
-    }
-}
-
-public class Program
+public class Solve
 {
 
-    [Fact]
-    private void SolvePart1()
+    [Theory]
+    [InlineData(InputType.File, "sample.txt", 35L)]
+    [InlineData(InputType.File, "input.txt", 173706076L)]
+    void Part1<T> (InputType type, string input,T expected)
     {
-        var (seeds, maps) = Parse();
+        var (seeds, maps) = Parse(type, input);
 
         seeds
             .Select(x => findPos(x, maps)).Min()
             .Dump()
-            .AssertEqual(173706076L);
-
+            .AssertEqual(expected);
     }
 
-    [Fact]
-    private void SolvePart2()
+    [Theory]
+    [InlineData(InputType.File, "sample.txt", 46L)]
+    [InlineData(InputType.File, "input.txt", 11611182L)]
+    void Part2<T>(InputType type, string input, T expected)
     {
-        var (seeds, maps) = Parse();
+        var (seeds, maps) = Parse(type, input);
 
-        var minLocation2 = 1000000000000000L;
+        var minLocation = 1000000000000000L;
 
         for (int i = 0; i < seeds.Length / 2; i++)
         {
-            findPos2(seeds[i * 2], seeds[i * 2 + 1], 0, maps, ref minLocation2);
+            findPos2(seeds[i * 2], seeds[i * 2 + 1], 0, maps, ref minLocation);
         }
-        minLocation2
+        minLocation
             .Dump()
-            .AssertEqual(11611182L);
+            .AssertEqual(expected);
     }
 
-    (long[], long[][][]) Parse()
+    (long[], long[][][]) Parse(InputType type, string input)
     {
-        string input = File.ReadAllText("input.txt");
+        if(type == InputType.File)
+            input = File.ReadAllText(input);
         var inputs = input.Split("\r\n\r\n");
 
         var seeds = Reads.ReadNumbers(inputs[0]);

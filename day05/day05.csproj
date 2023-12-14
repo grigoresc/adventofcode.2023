@@ -36,4 +36,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="aoc.common" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+
 </Project>
