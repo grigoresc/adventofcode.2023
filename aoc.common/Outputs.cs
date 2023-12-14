@@ -8,6 +8,18 @@ public static class Outputs
     {
         Outputs.output = output;
     }
+    
+    public static void Dump(this char[][] map, string? title = "")
+    {
+        if (output != null)
+        {
+            output.WriteLine($"~~~~~~~~~~~~~~{title}~~~~~~~~~~~~~~");
+            foreach (var line in map)
+            {
+                output.WriteLine(new string(line));
+            }
+        }
+    }
 
     public static object Dump<T>(this T[][] o, string? expl = null)
     {
