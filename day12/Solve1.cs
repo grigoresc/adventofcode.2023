@@ -67,6 +67,7 @@ public partial class Solve
             {
                 if (cl == 0 && current == lengths.Length)
                 {
+                    
                     cnt++;
                 }
             }
