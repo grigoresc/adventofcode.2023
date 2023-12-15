@@ -16,14 +16,7 @@ public class Solve
     }
     int hash(string input)
     {
-        var h = 0;
-        foreach (var c in input)
-        {
-            h += c;
-            h *= 17;
-            h %= 256;
-        }
-        return h;
+        return input.ToCharArray().Aggregate(0, (h, c) => (h + c) * 17 % 256);
     }
 
     [Theory]
@@ -39,29 +32,25 @@ public class Solve
         }
         foreach (var cmd in cmds)
         {
-            if (cmd.EndsWith("-"))
+            var s = cmd.Split(new char[] { '-', '=' });
+            var label = s[0];
+            var h = hash(label);
+            var idx = slots[h].FindIndex(h => h.Key == label);
+            if (s[1] == "")
             {
-                var s = cmd.Split("-");
-                var key = s[0];
-                var h = hash(key);
-                var idx = slots[h].FindIndex(h => h.Key == key);
                 if (idx >= 0)
                     slots[h].RemoveAt(idx);
             }
             else
             {
-                var s = cmd.Split("=");
-                var key = s[0];
                 var value = int.Parse(s[1]);
-                var h = hash(key);
-                var idx = slots[h].FindIndex(h => h.Key == key);
                 if (idx >= 0)
                 {
-                    slots[h][idx] = new KeyValuePair<string, long>(key, value);
+                    slots[h][idx] = new KeyValuePair<string, long>(label, value);
                 }
                 else
                 {
-                    slots[h].Add(new KeyValuePair<string, long>(key, value));
+                    slots[h].Add(new KeyValuePair<string, long>(label, value));
                 }
             }
         }
