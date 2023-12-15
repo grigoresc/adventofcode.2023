@@ -44,7 +44,7 @@ public static class Outputs
 
         return o;
     }
-    public static object Dump<T>(this T[] o, string? expl = null)
+    public static T[] Dump<T>(this T[] o, string? expl = null)
     {
         if (output != null)
         {
@@ -55,7 +55,7 @@ public static class Outputs
         return o;
     }
 
-    public static object Dump<T>(this T o, string? expl = null)
+    public static T Dump<T>(this T o, string? expl = null)
     {
         Console.WriteLine(o);
 
@@ -71,7 +71,7 @@ public static class Outputs
         return o;
     }
 
-    public static object AssertSolved<T>(this T o, T expected)
+    public static T AssertSolved<T>(this T o, T expected)
     {
         Assert.Equal(expected, o);
         return o;
