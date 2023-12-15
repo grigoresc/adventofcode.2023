@@ -26,7 +26,7 @@ public static class Outputs
         if (output != null)
         {
             if (!string.IsNullOrEmpty(expl))
-                Prints.printItem($"{expl}");
+                Prints.printItem($"{expl}", output.WriteLine);
             Prints.print(o, output.WriteLine);
         }
 
@@ -38,7 +38,7 @@ public static class Outputs
         if (output != null)
         {
             if (!string.IsNullOrEmpty(expl))
-                Prints.printItem($"{expl}");
+                Prints.printItem($"{expl}", output.WriteLine);
             Prints.print(o, output.WriteLine);
         }
 
@@ -49,7 +49,7 @@ public static class Outputs
         if (output != null)
         {
             if (!string.IsNullOrEmpty(expl))
-                Prints.printItem($"{expl}");
+                Prints.printItem($"{expl}", output.WriteLine);
             Prints.print(o, output.WriteLine);
         }
         return o;
@@ -62,7 +62,7 @@ public static class Outputs
         if (output != null)
         {
             if (!string.IsNullOrEmpty(expl))
-                Prints.printItem($"{expl} {o}");
+                Prints.printItem($"{expl} {o}", output.WriteLine);
             else
             {
                 Prints.printItem(o, output.WriteLine);

@@ -44,6 +44,8 @@
 
   <ItemGroup>
     <Using Include="aoc.common" />
+    <Using Include="Xunit" />
+    <Using Include="Xunit.Abstractions" />
   </ItemGroup>
 
 </Project>
