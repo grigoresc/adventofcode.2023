@@ -52,25 +52,64 @@ public class Solve
     long Dig(List<KeyValuePair<char, int>> map)
     {
         var pos = new Pos(1, 1);
-        var margins = new HashSet<Pos>();
+        var margins = new HashSet<PosRange>();
         var minPos = pos;
         var maxPos = pos;
         foreach (var item in map)
         {
-            for (var i = 0; i < item.Value; i++)
+            //for (var i = 0; i < item.Value; i++)
+            //{
+            //handle fixed Y
+            //var nextPos = NextPosByDir(item.Key, pos, item.Value);
+            if (item.Key == 'U' || item.Key == 'D')
             {
-                pos = NextPostByDir(item.Key, pos, 1);
-                margins.Add(pos);
-                minPos = new Pos(Math.Min(minPos.x, pos.x), Math.Min(minPos.y, pos.y));
-                maxPos = new Pos(Math.Max(maxPos.x, pos.x), Math.Max(maxPos.y, pos.y));
+                var inc = item.Key == 'U' ? -1 : 1;
+                var digsCount = item.Value;
+                while (digsCount > 0)
+                {
+                    pos = NextPosByDir(item.Key, pos, 1);
+                    
+                    //find any intermmediate margins
+                    foreach(var margin in margins)
+                    {
+                        if (margin.Pos.x == pos.x)
+                        {
+                            if (margin.Pos.y >= pos.y && margin.Pos.y <= pos.y + digsCount)
+                            {
+                                //found a margin
+                                var len = Math.Min(margin.LenY, (ulong)(pos.y + digsCount - margin.Pos.y));
+                                if (len > 0)
+                                {
+                                    //for (var y = pos.y; y != pos.y + len; y += inc)
+                                    margins.Add(new PosRange(new Pos(pos.x, pos.y), 1, len));
+                                    digsCount -= (int)len;
+                                }
+                            }
+                        }
+                    }
+                }
+                //for(long i = 0; i < item.Value; i++)
+                //{
+
+                //}
+                //for (var x = pos.x; x != pos.x + item.Value; x += inc)
+                    margins.Add(new PosRange(new Pos(pos.x, pos.y), 1, 1));
+                //for(var y=pos.y+1;y!=pos.y+item.Value;y+=inc)
+                    //margins.Add(new PosRange(new Pos(pos.x, y), 1, 1));
             }
+            if (item.Value >= 1)
+            {
+
+            }
+            margins.Add(new PosRange(pos, 1, 1));
+            minPos = new Pos(Math.Min(minPos.x, pos.x), Math.Min(minPos.y, pos.y));
+            maxPos = new Pos(Math.Max(maxPos.x, pos.x), Math.Max(maxPos.y, pos.y));
+            //}
         }
 
         minPos.DumpS("minPos");
         maxPos.DumpS("maxPos");
 
-
-        List<HashSet<Pos>> regions = new();
         var filled = new HashSet<Pos>();
 
         var draw = new char[maxPos.x - minPos.x + 1][];
@@ -84,18 +123,19 @@ public class Solve
         }
         foreach (var point in margins)
         {
-            FillPos(minPos, draw, point, '#');
+            FillDraw(minPos, draw, point.Pos, '#');
         }
-        
+
+        //todo change here maybe..
         var startPos = new Pos(0, 3);//lucky guess from the draw
-        FillPos(minPos, draw, startPos, 'X');
+        FillDraw(minPos, draw, startPos, 'X');
         draw.Dump("init");
-        
+
         fill(margins, filled, startPos, minPos, maxPos);
 
         foreach (var point in filled)
         {
-            FillPos(minPos, draw, point, ' ');
+            FillDraw(minPos, draw, point, ' ');
         }
         draw.Dump("filled");
 
@@ -106,15 +146,15 @@ public class Solve
         return sln;
     }
 
-    private static void FillPos(Pos minPos, char[][] draw, Pos point, char c)
+    private static void FillDraw(Pos minPos, char[][] draw, Pos point, char c)
     {
         //$"fill {point.x},{point.y} as {point.x - minPos.x},{point.y - minPos.y}".Dump();
         draw[point.x - minPos.x][point.y - minPos.y] = c;
     }
 
-    private void fill(HashSet<Pos> margins, HashSet<Pos> filled, Pos pos, Pos minPos, Pos maxPos)
+    private void fill(HashSet<PosRange> margins, HashSet<Pos> filled, Pos pos, Pos minPos, Pos maxPos)
     {
-        if (margins.Contains(pos))
+        if (margins.Contains(new PosRange(pos, 1, 1)))//todo change this..
         {
             throw new Exception("pos on a margin");
         }
@@ -125,18 +165,31 @@ public class Solve
             var cur = q.Dequeue();
             foreach (var dir in "ULDR")
             {
-                var nextPos = NextPostByDir(dir, cur, 1);
+                var nextPos = NextPosByDir(dir, cur, 1);
                 if (
                     nextPos.x >= minPos.x
                     && nextPos.y >= minPos.y
                     && nextPos.x <= maxPos.x
                     && nextPos.y <= maxPos.y)
-                    if (!margins.Contains(nextPos) && !filled.Contains(nextPos))
+                    //todo - change here
+                    if (!margins.Contains(new PosRange(nextPos, 1, 1)) && !filled.Contains(nextPos))
                     {
                         filled.Add(nextPos);
                         q.Enqueue(nextPos);
                     }
             }
+        }
+    }
+    struct PosRange
+    {
+        public Pos Pos;
+        public ulong LenX = 1;
+        public ulong LenY = 1;
+        public PosRange(Pos pos, ulong lenX, ulong lenY)
+        {
+            this.Pos = pos;
+            this.LenX = lenX;
+            this.LenY = lenY;
         }
     }
 
@@ -157,7 +210,7 @@ public class Solve
         }
     }
 
-    Pos NextPostByDir(char dir, Pos pos, int len)
+    Pos NextPosByDir(char dir, Pos pos, int len)
     {
         switch (dir)
         {
