@@ -11,15 +11,17 @@ public class Solve
         "367\r\n" +
         "312", 2)]
 
-    void Part1(string input, int expected)
+    public void Part1(string input, int expected)
     {
         var map = input.ParseAsLines().Select(x => x.ToCharArray()).ToArray();
-        map.Dump();
-        var min1 = move(map, new Pos(0, 0), new Pos(map.Length - 1, map.Length - 1),'>').Dump();
-        var min2 = move(map, new Pos(0, 0), new Pos(map.Length - 1, map.Length - 1),'V').Dump();
+        map.Dump("Initial");
+        var min1 = move(map, new Pos(0, 0), new Pos(map.Length - 1, map.Length - 1), 'V', 0).Dump();
+        var min2 = move(map, new Pos(0, 0), new Pos(map.Length - 1, map.Length - 1), '>', 0).Dump();
 
-        var min = Math.Min(min1, min2);
-        min.AssertSolved(expected);
+        //var min = Math.Min(min1, min2);
+        //min.AssertSolved(expected);
+        min1.Dump("min1");
+        min2.Dump("min2");
     }
     struct Pos
     {
@@ -61,18 +63,35 @@ public class Solve
                 throw new Exception();
         }
     }
-   
 
-    long move(char[][] map, Pos src, Pos dest, char currentDir)
+
+
+    Dictionary<string, long?> m = new();
+    string hash(char[][] map, Pos src, char currentDir)
     {
+        return string.Join($"{src.x}-{src.y}", map.Select(x => new string(x)))
+            .Replace("<", ".").Replace(">", ".")
+            .Replace("^", ".").Replace("V", ".");// + currentDir;
+    }
+    long? move(char[][] map, Pos src, Pos dest, char currentDir, int level)
+    {
+        var currentHash = hash(map, src, currentDir);
+        if (m.ContainsKey(currentHash))
+        {
+            $"{currentHash}".Dump();
+            Console.ReadLine();
+            return m[currentHash];
+        }
+
         //$"currentDir:{currentDir}".Dump();
-        //map.Dump();
+        //map.Dump($"level {level} arrived at {src.x},{src.y} ({map[src.x][src.y]})");
         if (src.x == dest.x && src.y == dest.y)
         {
+            m[currentHash] = 0;
             return 0;
         }
         //$"{src.x},{src.y}".Dump();
-        var minCost = long.MaxValue;
+        long? minCost = null;
         foreach (var dir in NextDir[currentDir])
         {
             var curPos = src;
@@ -90,19 +109,25 @@ public class Solve
                         temp[curPos] = map[curPos.x][curPos.y];
                         map[curPos.x][curPos.y] = dir;
                         //map[curPos.x][curPos.y] = d[Array.IndexOf(dirs, dir)];
-                        var res = move(map, curPos, dest, dir);
+                        var res = move(map, curPos, dest, dir, level + 1);
 
-                        cost += res;
-
-                        if (cost < minCost)
+                        if (res != null)
                         {
-                            minCost = cost;
+                            cost += res.Value;
+
+                            if (!minCost.HasValue || cost < minCost.Value)
+                            {
+                                minCost = cost;
+                            }
+
                         }
-                    }else
+                    }
+                    else
                     {
                         break;
                     }
-                }else
+                }
+                else
                 {
                     break;
                 }
@@ -115,12 +140,13 @@ public class Solve
             }
         }
 
+        m[currentHash] = minCost;
         return minCost;
     }
 
     [Theory]
     [InlineData("sample.txt", 102)]
-    void Part2(string input, long expected)
+    public void Part2(string input, long expected)
     {
     }
 
