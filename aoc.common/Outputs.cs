@@ -8,65 +8,68 @@ public static class Outputs
     {
         Outputs.output = output;
     }
-    
+
+    static Action<string> printer
+    {
+        get
+        {
+            if (output != null)
+                return output.WriteLine;
+            else
+                return Console.WriteLine;
+        }
+    }
+
     public static void Dump(this char[][] map, string? title = "")
     {
-        if (output != null)
+        Prints.printItem($"~~~~~~~~~~~~~~{title}~~~~~~~~~~~~~~", printer);
+        foreach (var line in map)
         {
-            output.WriteLine($"~~~~~~~~~~~~~~{title}~~~~~~~~~~~~~~");
-            foreach (var line in map)
-            {
-                output.WriteLine(new string(line));
-            }
+            Prints.printItem(new string(line), printer);
         }
+    }
+
+    public static object Dump<K,V>(this Dictionary<K,V> dict, string? expl = null)
+    {
+        if (!string.IsNullOrEmpty(expl))
+            Prints.printItem($"{expl}", printer);
+        Prints.print(dict, printer);
+
+        return dict;
     }
 
     public static object Dump<T>(this T[][] o, string? expl = null)
     {
-        if (output != null)
-        {
-            if (!string.IsNullOrEmpty(expl))
-                Prints.printItem($"{expl}", output.WriteLine);
-            Prints.print(o, output.WriteLine);
-        }
+        if (!string.IsNullOrEmpty(expl))
+            Prints.printItem($"{expl}", printer);
+        Prints.print(o, printer);
 
         return o;
     }
 
     public static object Dump<T>(this T[][][] o, string? expl = null)
     {
-        if (output != null)
-        {
-            if (!string.IsNullOrEmpty(expl))
-                Prints.printItem($"{expl}", output.WriteLine);
-            Prints.print(o, output.WriteLine);
-        }
-
+        if (!string.IsNullOrEmpty(expl))
+            Prints.printItem($"{expl}", printer);
+        Prints.print(o, printer);
         return o;
     }
+
     public static T[] Dump<T>(this T[] o, string? expl = null)
     {
-        if (output != null)
-        {
-            if (!string.IsNullOrEmpty(expl))
-                Prints.printItem($"{expl}", output.WriteLine);
-            Prints.print(o, output.WriteLine);
-        }
+        if (!string.IsNullOrEmpty(expl))
+            Prints.printItem($"{expl}", printer);
+        Prints.print(o, printer);
         return o;
     }
 
     public static T Dump<T>(this T o, string? expl = null)
     {
-        Console.WriteLine(o);
-
-        if (output != null)
+        if (!string.IsNullOrEmpty(expl))
+            Prints.printItem($"{expl} {o}", printer);
+        else
         {
-            if (!string.IsNullOrEmpty(expl))
-                Prints.printItem($"{expl} {o}", output.WriteLine);
-            else
-            {
-                Prints.printItem(o, output.WriteLine);
-            }
+            Prints.printItem(o, printer);
         }
         return o;
     }
